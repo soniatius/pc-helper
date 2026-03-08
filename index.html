@@ -4,10 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Помощник сборщика ПК</title>
-    
-    <!-- Подключаем PyScript ПРАВИЛЬНО -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
-    
     <style>
         * {
             margin: 0;
@@ -16,170 +12,142 @@
         }
         
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
             min-height: 100vh;
             padding: 20px;
         }
         
         .container {
-            max-width: 700px;
+            max-width: 600px;
             margin: 0 auto;
         }
         
         .card {
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
         
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
+        h1 {
+            color: #333;
             text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
         }
         
-        .header h1 {
-            font-size: 2.2em;
-            margin-bottom: 10px;
-        }
-        
-        .content {
-            padding: 30px;
-        }
-        
-        /* Чат-интерфейс */
-        .chat-container {
+        .step {
             background: #f8f9fa;
             border-radius: 15px;
             padding: 20px;
             margin-bottom: 20px;
-            border: 1px solid #e0e0e0;
+            border-left: 5px solid #007bff;
         }
         
-        .messages {
-            min-height: 300px;
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 10px;
-        }
-        
-        .message {
+        .step h3 {
+            color: #007bff;
             margin-bottom: 15px;
-            display: flex;
-            animation: fadeIn 0.3s;
+            font-size: 20px;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .step p {
+            color: #666;
+            margin-bottom: 10px;
         }
         
-        .bot-message {
-            justify-content: flex-start;
-        }
-        
-        .user-message {
-            justify-content: flex-end;
-        }
-        
-        .message-content {
-            max-width: 80%;
-            padding: 12px 18px;
-            border-radius: 20px;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-        
-        .bot-message .message-content {
-            background: #e3f2fd;
-            color: #0d47a1;
-            border-bottom-left-radius: 5px;
-        }
-        
-        .user-message .message-content {
-            background: #4CAF50;
-            color: white;
-            border-bottom-right-radius: 5px;
-        }
-        
-        .system-message {
-            justify-content: center;
-        }
-        
-        .system-message .message-content {
-            background: #ffd700;
-            color: #333;
-            font-weight: bold;
-            text-align: center;
-        }
-        
-        /* Область ввода */
-        .input-area {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        #userInput {
-            flex: 1;
-            padding: 15px;
+        input, select {
+            width: 100%;
+            padding: 12px;
             border: 2px solid #ddd;
             border-radius: 10px;
             font-size: 16px;
-            transition: all 0.3s;
+            margin-top: 5px;
         }
         
-        #userInput:focus {
+        input:focus, select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #007bff;
+        }
+        
+        .hint {
+            color: #6c757d;
+            font-size: 14px;
+            margin-top: 5px;
         }
         
         button {
-            padding: 15px 30px;
-            background: #667eea;
+            width: 100%;
+            padding: 15px;
+            background: #28a745;
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            transition: transform 0.2s;
+            margin: 20px 0;
+            transition: background 0.3s;
         }
         
         button:hover {
-            background: #764ba2;
-            transform: translateY(-2px);
+            background: #218838;
         }
         
-        button.reset {
-            background: #f44336;
+        .result {
+            background: #e3f2fd;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid #90caf9;
         }
         
-        /* Кнопки-подсказки */
-        .quick-buttons {
+        .result h2 {
+            color: #0d47a1;
+            margin-bottom: 15px;
+            font-size: 22px;
+        }
+        
+        .result-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            background: white;
+        }
+        
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .sockets-list {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
-            margin: 20px 0;
+            margin: 10px 0;
         }
         
-        .quick-btn {
-            padding: 8px 16px;
-            background: white;
-            border: 2px solid #667eea;
-            color: #667eea;
+        .socket-tag {
+            background: #e9ecef;
+            padding: 5px 15px;
             border-radius: 20px;
+            font-size: 14px;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.2s;
+            border: 1px solid #dee2e6;
         }
         
-        .quick-btn:hover {
-            background: #667eea;
+        .socket-tag:hover {
+            background: #007bff;
             color: white;
         }
         
@@ -190,274 +158,236 @@
             border-radius: 10px;
             margin-top: 20px;
         }
-        
-        .loader {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 10px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .status {
-            text-align: center;
-            padding: 10px;
-            background: #f0f0f0;
-            border-radius: 10px;
-            margin-bottom: 10px;
-            color: #666;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="card">
-            <div class="header">
-                <h1>🖥️ ПОМОЩНИК СБОРЩИКА ПК</h1>
-                <p>Просто отвечайте на вопросы</p>
+            <h1>🖥️ ПОМОЩНИК СБОРЩИКА ПК</h1>
+            
+            <!-- ШАГ 1: Процессор -->
+            <div class="step">
+                <h3>🔧 ШАГ 1: Выберите процессор</h3>
+                <p>Сокет процессора:</p>
+                <div class="sockets-list">
+                    <span class="socket-tag" onclick="setCpu('AM4')">AM4</span>
+                    <span class="socket-tag" onclick="setCpu('AM5')">AM5</span>
+                    <span class="socket-tag" onclick="setCpu('LGA1700')">LGA1700</span>
+                    <span class="socket-tag" onclick="setCpu('LGA1200')">LGA1200</span>
+                    <span class="socket-tag" onclick="setCpu('LGA1151')">LGA1151</span>
+                </div>
+                <input type="text" id="cpu" placeholder="Например: AM4" value="">
+                <div class="hint">👆 Нажмите на кнопку или введите сами</div>
             </div>
             
-            <div class="content">
-                <!-- Статус загрузки -->
-                <div class="status" id="status">
-                    ⏳ Загрузка Python...
+            <!-- ШАГ 2: Материнская плата -->
+            <div class="step">
+                <h3>🔧 ШАГ 2: Выберите материнскую плату</h3>
+                <p>Сокет материнской платы:</p>
+                <div class="sockets-list">
+                    <span class="socket-tag" onclick="setMb('AM4')">AM4</span>
+                    <span class="socket-tag" onclick="setMb('AM5')">AM5</span>
+                    <span class="socket-tag" onclick="setMb('LGA1700')">LGA1700</span>
+                    <span class="socket-tag" onclick="setMb('LGA1200')">LGA1200</span>
+                    <span class="socket-tag" onclick="setMb('LGA1151')">LGA1151</span>
                 </div>
-                
-                <!-- Чат -->
-                <div class="chat-container">
-                    <div class="messages" id="messages">
-                        <div class="message system-message">
-                            <div class="message-content">
-                                Добро пожаловать! Я помогу проверить совместимость комплектующих
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Быстрые кнопки -->
-                    <div class="quick-buttons" id="quickButtons"></div>
-                    
-                    <!-- Ввод -->
-                    <div class="input-area">
-                        <input type="text" id="userInput" placeholder="Введите ответ..." autocomplete="off">
-                        <button onclick="sendMessage()">Отправить</button>
-                        <button class="reset" onclick="resetChat()">↺</button>
-                    </div>
-                </div>
-                
-                <!-- Подсказка -->
-                <div class="info-box">
-                    <strong>💡 Примеры сокетов:</strong> AM4, AM5, LGA1700, LGA1200, LGA1151<br>
-                    <strong>💡 Типы памяти:</strong> DDR3, DDR4, DDR5
-                </div>
+                <input type="text" id="mb" placeholder="Например: AM4" value="">
+            </div>
+            
+            <!-- ШАГ 3: Оперативная память -->
+            <div class="step">
+                <h3>🧠 ШАГ 3: Выберите оперативную память</h3>
+                <p>Тип памяти:</p>
+                <select id="ram">
+                    <option value="DDR3">DDR3</option>
+                    <option value="DDR4" selected>DDR4</option>
+                    <option value="DDR5">DDR5</option>
+                </select>
+            </div>
+            
+            <!-- ШАГ 4: Блок питания -->
+            <div class="step">
+                <h3>⚡ ШАГ 4: Выберите блок питания</h3>
+                <p>Мощность (Ватт):</p>
+                <select id="psu">
+                    <option value="300">300 Вт (Офисный ПК)</option>
+                    <option value="400">400 Вт</option>
+                    <option value="500" selected>500 Вт (Базовый игровой)</option>
+                    <option value="600">600 Вт</option>
+                    <option value="650">650 Вт (Хороший игровой)</option>
+                    <option value="750">750 Вт</option>
+                    <option value="850">850 Вт (Мощный)</option>
+                    <option value="1000">1000+ Вт (Топовый)</option>
+                </select>
+            </div>
+            
+            <!-- Кнопка проверки -->
+            <button onclick="checkCompatibility()">🔍 ПРОВЕРИТЬ СОВМЕСТИМОСТЬ</button>
+            
+            <!-- Результат -->
+            <div class="result" id="result" style="display: none;">
+                <h2>📊 РЕЗУЛЬТАТ ПРОВЕРКИ</h2>
+                <div id="result-content"></div>
+            </div>
+            
+            <!-- Информация -->
+            <div class="info-box">
+                <strong>ℹ️ Что нужно знать:</strong><br>
+                • Сокет процессора должен совпадать с сокетом материнской платы<br>
+                • Тип памяти должен поддерживаться сокетом<br>
+                • Блок питания должен иметь запас мощности
             </div>
         </div>
     </div>
 
     <script>
-        // Глобальные переменные
-        let pyodide = null;
-        let pythonInput = '';
-        let inputReady = false;
-        let currentQuestion = '';
-        
-        // Инициализация
-        async function init() {
-            try {
-                document.getElementById('status').innerHTML = '⏳ Загрузка Python...';
-                
-                // Загружаем Pyodide
-                pyodide = await loadPyodide();
-                
-                document.getElementById('status').innerHTML = '✅ Python загружен!';
-                
-                // Загружаем нашу программу
-                await loadProgram();
-                
-            } catch (error) {
-                document.getElementById('status').innerHTML = '❌ Ошибка загрузки';
-                console.error(error);
+        // База данных совместимости
+        const socketInfo = {
+            'AM4': {
+                name: 'AMD Socket AM4',
+                ram: ['DDR4'],
+                cpus: 'AMD Ryzen 1000-5000'
+            },
+            'AM5': {
+                name: 'AMD Socket AM5',
+                ram: ['DDR5'],
+                cpus: 'AMD Ryzen 7000'
+            },
+            'LGA1700': {
+                name: 'Intel LGA1700',
+                ram: ['DDR4', 'DDR5'],
+                cpus: 'Intel 12-14 поколения'
+            },
+            'LGA1200': {
+                name: 'Intel LGA1200',
+                ram: ['DDR4'],
+                cpus: 'Intel 10-11 поколения'
+            },
+            'LGA1151': {
+                name: 'Intel LGA1151',
+                ram: ['DDR4'],
+                cpus: 'Intel 6-9 поколения'
             }
-        }
-        
-        // Загрузка программы
-        async function loadProgram() {
-            // Код программы на Python
-            const program = `
-import asyncio
-from js import document, setTimeout
-
-# База данных сокетов
-socket_info = {
-    'AM4': {'ram_types': ['DDR4']},
-    'AM5': {'ram_types': ['DDR5']},
-    'LGA1700': {'ram_types': ['DDR4', 'DDR5']},
-    'LGA1200': {'ram_types': ['DDR4']},
-    'LGA1151': {'ram_types': ['DDR4']},
-}
-
-# Функция для добавления сообщения в чат
-def add_message(text, type='bot'):
-    from js import document
-    messages = document.getElementById('messages')
-    div = document.createElement('div')
-    div.className = f'message {type}-message'
-    content = document.createElement('div')
-    content.className = 'message-content'
-    content.innerHTML = text.replace('\\n', '<br>')
-    div.appendChild(content)
-    messages.appendChild(div)
-    messages.scrollTop = messages.scrollHeight
-
-# Функция для получения ввода
-async def get_input(prompt):
-    global input_ready, user_input
-    
-    add_message(prompt)
-    
-    # Ждем ввод от пользователя
-    while not input_ready:
-        await asyncio.sleep(0.1)
-    
-    input_ready = False
-    return user_input
-
-# Основная программа
-async def main():
-    add_message("Здравствуйте! Давайте проверим совместимость ваших комплектующих.", 'system')
-    await asyncio.sleep(0.5)
-    
-    while True:
-        # Шаг 1: Процессор
-        cpu = await get_input("🔧 Введите сокет ПРОЦЕССОРА (например, AM4):")
-        cpu = cpu.strip().upper()
-        add_message(f"✓ Выбрано: {cpu}")
-        
-        # Шаг 2: Материнская плата
-        mb = await get_input("🔧 Введите сокет МАТЕРИНСКОЙ ПЛАТЫ:")
-        mb = mb.strip().upper()
-        add_message(f"✓ Выбрано: {mb}")
-        
-        # Проверка сокетов
-        if cpu == mb:
-            add_message("✅ Процессор и материнская плата СОВМЕСТИМЫ!", 'system')
-            
-            # Шаг 3: Память
-            if cpu in socket_info:
-                supported = ', '.join(socket_info[cpu]['ram_types'])
-                ram = await get_input(f"🧠 Для {cpu} поддерживается: {supported}\\nВведите тип памяти (DDR3/DDR4/DDR5):")
-                ram = ram.strip().upper()
-                
-                if ram in socket_info[cpu]['ram_types']:
-                    add_message(f"✅ Память {ram} ПОДХОДИТ!", 'system')
-                    
-                    # Шаг 4: БП
-                    try:
-                        psu = await get_input("⚡ Введите мощность БЛОКА ПИТАНИЯ (Ватт):")
-                        psu = int(psu.strip())
-                        
-                        if psu < 400:
-                            add_message("⚠️ Блок питания СЛАБОВАТ (нужно минимум 400-500 Вт)", 'system')
-                        elif psu < 600:
-                            add_message("✅ Блок питания НОРМАЛЬНЫЙ", 'system')
-                        else:
-                            add_message("✅ Блок питания ОТЛИЧНЫЙ (с запасом)", 'system')
-                        
-                        add_message("🎉 ВСЕ КОМПОНЕНТЫ ПРОВЕРЕНЫ! Сборка возможна!", 'system')
-                        
-                    except:
-                        add_message("❌ Ошибка: введите число", 'system')
-                else:
-                    add_message(f"❌ Память {ram} НЕ ПОДХОДИТ для {cpu}!", 'system')
-            else:
-                add_message("⚠️ Сокет не найден в базе, проверьте документацию", 'system')
-        else:
-            add_message(f"❌ НЕСОВМЕСТИМЫ! CPU: {cpu}, MB: {mb}", 'system')
-        
-        # Спросить про повтор
-        again = await get_input("\\nХотите проверить другую сборку? (да/нет):")
-        if again.lower() not in ['да', 'yes', 'y', 'д', 'lf']:
-            add_message("🚀 Спасибо за использование! Удачной сборки!", 'system')
-            break
-        
-        add_message("="*40, 'system')
-
-# Запуск
-asyncio.ensure_future(main())
-            `;
-            
-            // Запускаем программу
-            await pyodide.runPythonAsync(program);
-        }
-        
-        // Отправка сообщения
-        function sendMessage() {
-            let input = document.getElementById('userInput').value;
-            if (input) {
-                // Показываем сообщение пользователя
-                let messages = document.getElementById('messages');
-                let div = document.createElement('div');
-                div.className = 'message user-message';
-                let content = document.createElement('div');
-                content.className = 'message-content';
-                content.textContent = input;
-                div.appendChild(content);
-                messages.appendChild(div);
-                messages.scrollTop = messages.scrollHeight;
-                
-                // Отправляем в Python
-                window.user_input = input;
-                window.input_ready = true;
-                
-                document.getElementById('userInput').value = '';
-            }
-        }
-        
-        // Сброс
-        function resetChat() {
-            document.getElementById('messages').innerHTML = `
-                <div class="message system-message">
-                    <div class="message-content">
-                        Добро пожаловать! Я помогу проверить совместимость комплектующих
-                    </div>
-                </div>
-            `;
-            location.reload();
-        }
-        
-        // Отправка по Enter
-        document.getElementById('userInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-        
-        // Быстрые кнопки
-        function addQuickButton(text) {
-            let input = document.getElementById('userInput');
-            input.value = text;
-            sendMessage();
-        }
-        
-        // Загружаем Pyodide
-        const loadPyodide = async () => {
-            return await pyodideLoader({
-                indexURL: "https://cdn.jsdelivr.net/pyodide/v0.24.1/full/"
-            });
         };
         
-        // Старт
-        init();
+        // Функции для быстрого ввода
+        function setCpu(value) {
+            document.getElementById('cpu').value = value;
+        }
+        
+        function setMb(value) {
+            document.getElementById('mb').value = value;
+        }
+        
+        // Основная функция проверки
+        function checkCompatibility() {
+            // Получаем значения
+            let cpu = document.getElementById('cpu').value.trim().toUpperCase();
+            let mb = document.getElementById('mb').value.trim().toUpperCase();
+            let ram = document.getElementById('ram').value;
+            let psu = parseInt(document.getElementById('psu').value);
+            
+            // Проверяем что введено
+            if (!cpu || !mb) {
+                alert('❌ Введите сокеты процессора и материнской платы!');
+                return;
+            }
+            
+            // Начинаем формировать результат
+            let result = '';
+            let allGood = true;
+            
+            // Проверка 1: Сокеты
+            result += '<div class="result-item">';
+            result += '<strong>1. Процессор и материнская плата:</strong><br>';
+            
+            if (cpu === mb) {
+                result += '✅ СОВМЕСТИМЫ';
+                if (socketInfo[cpu]) {
+                    result += ` (${socketInfo[cpu].name})`;
+                }
+            } else {
+                result += `❌ НЕСОВМЕСТИМЫ (CPU: ${cpu}, MB: ${mb})`;
+                allGood = false;
+            }
+            result += '</div>';
+            
+            // Проверка 2: Память
+            result += '<div class="result-item">';
+            result += '<strong>2. Оперативная память:</strong><br>';
+            
+            if (cpu === mb && socketInfo[cpu]) {
+                if (socketInfo[cpu].ram.includes(ram)) {
+                    result += `✅ Память ${ram} ПОДХОДИТ для ${cpu}`;
+                } else {
+                    result += `❌ Память ${ram} НЕ ПОДХОДИТ для ${cpu}<br>`;
+                    result += `Поддерживается: ${socketInfo[cpu].ram.join(', ')}`;
+                    allGood = false;
+                }
+            } else if (cpu !== mb) {
+                result += '⚠️ Сначала исправьте несовместимость сокетов';
+                allGood = false;
+            } else {
+                result += `⚠️ Сокет ${cpu} не найден в базе, проверьте документацию`;
+            }
+            result += '</div>';
+            
+            // Проверка 3: Блок питания
+            result += '<div class="result-item">';
+            result += '<strong>3. Блок питания:</strong><br>';
+            
+            if (psu < 400) {
+                result += `⚠️ ${psu}Вт - СЛАБОВАТ (только для офисных ПК)`;
+                if (allGood) allGood = false;
+            } else if (psu < 500) {
+                result += `🟡 ${psu}Вт - ДОСТАТОЧНО для базовой системы`;
+            } else if (psu < 650) {
+                result += `🟢 ${psu}Вт - ХОРОШО для игрового ПК`;
+            } else if (psu < 850) {
+                result += `💪 ${psu}Вт - ОТЛИЧНО с запасом`;
+            } else {
+                result += `🚀 ${psu}Вт - ПРЕВОСХОДНО (для мощных сборок)`;
+            }
+            result += '</div>';
+            
+            // ИТОГ
+            result += '<div class="result-item" style="background: #f8f9fa; margin-top: 15px;">';
+            result += '<strong style="font-size: 18px;">🎯 ИТОГ:</strong><br>';
+            
+            if (cpu === mb && (socketInfo[cpu]?.ram.includes(ram) || !socketInfo[cpu])) {
+                if (cpu in socketInfo) {
+                    result += '<span class="success">✅ ВСЕ КОМПОНЕНТЫ СОВМЕСТИМЫ! Можно собирать компьютер!</span>';
+                } else {
+                    result += '<span class="warning">⚠️ Сокет не в базе, проверьте документацию</span>';
+                }
+            } else {
+                result += '<span class="error">❌ ЕСТЬ ПРОБЛЕМЫ с совместимостью</span>';
+            }
+            result += '</div>';
+            
+            // Показываем результат
+            document.getElementById('result-content').innerHTML = result;
+            document.getElementById('result').style.display = 'block';
+            
+            // Прокрутка к результату
+            document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Добавляем подсказки при вводе
+        document.getElementById('cpu').addEventListener('input', function(e) {
+            this.value = this.value.toUpperCase();
+        });
+        
+        document.getElementById('mb').addEventListener('input', function(e) {
+            this.value = this.value.toUpperCase();
+        });
+        
+        // Сохраняем последние значения
+        window.onload = function() {
+            // Показываем пример
+            document.getElementById('cpu').value = 'AM4';
+            document.getElementById('mb').value = 'AM4';
+        };
     </script>
-    
-    <!-- Загрузчик Pyodide -->
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
 </body>
 </html>
