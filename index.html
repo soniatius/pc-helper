@@ -1,144 +1,469 @@
-#объявляем главную функцию программы
-def main():
-    #выводим красивую шапку программы
-    print("=" * 60)
-    print("         ПОМОЩНИК СБОРЩИКА ПК v1.0")
-    print("=" * 60)
-    print("Эта программа поможет проверить совместимость")
-    print("основных комплектующих вашего компьютера.\n")
-    #словарь с известными сокетами и поддерживаемыми типами памяти
-    #это наша база знаний - здесь хранится информация о разных сокетах
-    socket_info = {#для каждого сокета указываем название и какие типы памяти поддерживает
-    'AM4': {'name': 'AMD Socket AM4', 'ram_types': ['DDR4']},'AM5': {'name': 'AMD Socket AM5', 'ram_types': ['DDR5']},'LGA1700': {'name': 'Intel LGA1700', 'ram_types': ['DDR4', 'DDR5']},'LGA1200': {'name': 'Intel LGA1200', 'ram_types': ['DDR4']},'LGA1151': {'name': 'Intel LGA1151', 'ram_types': ['DDR4']},'TR4': {'name': 'AMD Threadripper TR4', 'ram_types': ['DDR4']},'sTRX4': {'name': 'AMD Threadripper sTRX4', 'ram_types': ['DDR4']}}
-    #переменная для цикла - пока она True, программа будет спррашивать снова 
-    continue_checking = True
-    #начинаем основной цикл программы
-    while continue_checking:
-        #ШАГ 1: проверка процессора и материнской платы
-        print("\n--- ШАГ 1: Проверка совместимости процессора и материнской платы ---")
-        #спрашиваем у пользователя сокет процессора
-        #strip() убирает лишние пробелы, upper() переводит в верхний регистр
-        cpu_socket = input("Введите сокет процессора (например, AM4, LGA1700): ").strip().upper()
-        #проверяем, есть ли такой сокет в нашей базе данных
-        if cpu_socket in socket_info:
-            #если есть - показываем красивое название
-            print(f"✓ Найден сокет: {socket_info[cpu_socket]['name']}")
-        else:
-            #если нет - просто сообщаем, что не нашли
-            print(f"! Сокет {cpu_socket} не найден в базе, но продолжим проверку")
-        #спрашиваем сокет материнской платы
-        motherboard_socket = input("Введите сокет материнской платы: ").strip().upper()
-        #аналагично проверяем наличие в базе
-        if motherboard_socket in socket_info:
-            print(f"✓ Найден сокет: {socket_info[motherboard_socket]['name']}")
-        else:
-            print(f"! Сокет {motherboard_socket} не найден в базе, но продолжим проверку")
-        #сравниваем сокеты - главная проверка совместимости
-        print("\nРезультат проверки сокетов:", end=" ")
-        if cpu_socket == motherboard_socket:
-            #если сокеты одинаковые - всё отлично
-            print("✅ ОТЛИЧНО! Процессор и материнская плата совместимы по сокету.")
-            socket_compatible = True #запоминаем, что совместимы
-        else:
-            #если разные - ошибка!
-            print("❌ ОШИБКА! Процессор и материнская плата НЕСОВМЕСТИМЫ!")
-            print(f"   Сокет процессора: {cpu_socket}")
-            print(f"   Сокет материнской платы: {motherboard_socket}")
-            socket_compatible = False #запоминаем, что несовместимы
-        #ШАГ 2: проверка оперативной памяти
-        print("\n--- ШАГ 2: Проверка совместимости оперативной памяти ---")
-        #создаем переменные с начальными значениями (чтобы не было ошибок)
-        ram_compatible = False
-        ram_type = "не указан"
-        #если процессор и мать совместимы и сокет есть в базе
-        if socket_compatible and cpu_socket in socket_info:
-            #получаем список поддерживаемых типов памяти для этого сокета
-            supported_ram = socket_info[cpu_socket]['ram_types']
-            print(f"Для сокета {cpu_socket} поддерживаются типы памяти: {', '.join(supported_ram)}")
-            #спрашиваем тип памяти у пользователя
-            ram_type = input("Введите тип вашей оперативной памяти (DDR3/DDR4/DDR5): ").strip().upper()
-            #проверяем,есть ли введенный тип в списке поддерживаемых
-            if ram_type in supported_ram:
-                print(f"✅ ОТЛИЧНО! Тип памяти {ram_type} совместим с вашей системой.")
-                ram_compatible = True
-            else:
-                print(f"❌ ОШИБКА! Тип памяти {ram_type} не поддерживается для сокета {cpu_socket}!")
-                print(f"   Поддерживаемые типы: {', '.join(supported_ram)}")
-                ram_compatible = False
-        else:
-            #упрощенная проверка если сокет неизвестен или несовместим
-            print("(базовая проверка - без привязки к сокету)")
-            ram_type = input("Введите тип оперативной памяти (DDR3/DDR4/DDR5): ").strip().upper()
-            #просто проверяем, что ввели один из трех основных типов
-            if ram_type in ['DDR3', 'DDR4', 'DDR5']:
-                print(f"✓ Тип памяти {ram_type} принят (требуется дополнительная проверка с документацией)")
-                ram_compatible = True
-            else:
-                print(f"! Неизвестный тип памяти {ram_type}")
-                ram_compatible = False
-        #ШАГ 3: проверка блока питания
-        print("\n--- ШАГ 3: Проверка блока питания ---")
-        #используем try-expect для обработки ошибок ввода
-        try:
-            #пробуем преобразовать ввод в число
-            psu_power = int(input("Введите мощность блока питания (в Ваттах): "))
-            #оцениваем достаточность блока питания
-            print("\nОценка достаточности блока питания:")
-            if psu_power < 300:
-                print("⚠️ Маломощный БП (менее 300Вт) - только для офисных ПК без видеокарты")
-                psu_verdict = "Возможны ограничения"
-            elif psu_power < 500:
-                print("✓ БП средней мощности (300-500Вт) - подойдет для ПК с дискретной видеокартой начального уровня")
-                psu_verdict = "Достаточно для базовых систем"
-            elif psu_power < 750:
-                print("✓ Хороший БП (500-750Вт) - подойдет для большинства игровых ПК")
-                psu_verdict = "Хороший запас"
-            elif psu_power < 1000:
-                print("✓ Мощный БП (750-1000Вт) - для производительных игровых и рабочих станций")
-                psu_verdict = "Отличный запас"
-            else:
-                print("✓ Очень мощный БП (более 1000Вт) - для топовых конфигураций с несколькими видеокартами")
-                psu_verdict = "Избыточно для большинства сборок"
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Помощник сборщика ПК</title>
+    
+    <!-- Подключаем PyScript -->
+    <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
+    <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        /* Стили для терминала */
+        .terminal-container {
+            background: #1e1e1e;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .terminal-header {
+            background: #333;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .terminal-dots {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+        
+        .terminal-title {
+            color: #fff;
+            font-size: 14px;
+            margin-left: 10px;
+        }
+        
+        .terminal {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        
+        /* Стили для ввода */
+        .input-container {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .input-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        #user-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button.reset {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        /* Подсказки */
+        .hints {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4fd;
+            border-radius: 10px;
+            border-left: 4px solid #2196F3;
+        }
+        
+        .hint-tag {
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #2196F3;
+            cursor: pointer;
+            border: 1px solid #2196F3;
+            transition: all 0.2s;
+        }
+        
+        .hint-tag:hover {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .example {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .example-title {
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .step-guide {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 10px;
+        }
+        
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .step.active {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 14px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖥️ ПОМОЩНИК СБОРЩИКА ПК</h1>
+            <p>Проверьте совместимость комплектующих за 3 простых шага</p>
+        </div>
+        
+        <div class="main-content">
+            <!-- Пошаговая инструкция -->
+            <div class="step-guide" id="step-guide">
+                <div class="step" id="step1">1️⃣ Процессор</div>
+                <div class="step" id="step2">2️⃣ Материнская плата</div>
+                <div class="step" id="step3">3️⃣ Память и БП</div>
+            </div>
+            
+            <!-- Терминал -->
+            <div class="terminal-container">
+                <div class="terminal-header">
+                    <div class="terminal-dots">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <span class="terminal-title">PC Builder Helper</span>
+                </div>
+                <div class="terminal" id="terminal"></div>
+            </div>
+            
+            <!-- Область ввода -->
+            <div class="input-container">
+                <label class="input-label" id="input-label">📝 Введите ответ:</label>
+                <div class="input-group">
+                    <input type="text" id="user-input" placeholder="Например: AM4" autocomplete="off">
+                    <button onclick="sendInput()">Отправить</button>
+                    <button class="reset" onclick="resetProgram()">🔄 Сброс</button>
+                </div>
+            </div>
+            
+            <!-- Подсказки -->
+            <div class="hints" id="hints">
+                <span class="hint-tag" onclick="insertHint('AM4')">AM4</span>
+                <span class="hint-tag" onclick="insertHint('AM5')">AM5</span>
+                <span class="hint-tag" onclick="insertHint('LGA1700')">LGA1700</span>
+                <span class="hint-tag" onclick="insertHint('LGA1200')">LGA1200</span>
+                <span class="hint-tag" onclick="insertHint('LGA1151')">LGA1151</span>
+                <span class="hint-tag" onclick="insertHint('DDR3')">DDR3</span>
+                <span class="hint-tag" onclick="insertHint('DDR4')">DDR4</span>
+                <span class="hint-tag" onclick="insertHint('DDR5')">DDR5</span>
+            </div>
+            
+            <!-- Пример -->
+            <div class="example">
+                <div class="example-title">💡 Пример правильной сборки:</div>
+                • Процессор: AM4 (например, AMD Ryzen 5 5600)<br>
+                • Материнская плата: AM4 (например, B550)<br>
+                • Память: DDR4<br>
+                • Блок питания: 500-600 Вт<br>
+                <span style="color: green;">✅ Все компоненты совместимы!</span>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Просто вводите ответы на вопросы и нажимайте Enter | v1.0
+        </div>
+    </div>
+
+    <!-- JavaScript для интерфейса -->
+    <script>
+        let currentStep = 1;
+        
+        function insertHint(value) {
+            document.getElementById('user-input').value = value;
+        }
+        
+        function sendInput() {
+            let input = document.getElementById('user-input').value;
+            if (input) {
+                // Отправляем в Python
+                pythonInput = input;
+                window.inputReady = true;
                 
-        except ValueError:
-            #если пользователь ввел не число
-            print("! Ошибка: введите число (мощность в Ваттах)")
-            psu_power = 0
-            psu_verdict = "Не удалось оценить"
-        #выводим итоговый вердикт
-        print("\n" + "=" * 60)
-        print("                     ИТОГОВЫЙ ВЕРДИКТ")
-        print("=" * 60)
-        #результат проверки сокетов
-        print(f"Процессор (сокет {cpu_socket}) и материнская плата (сокет {motherboard_socket}): ", end="")
-        if cpu_socket == motherboard_socket:
-            print("✅ СОВМЕСТИМЫ")
-        else:
-            print("❌ НЕСОВМЕСТИМЫ")
-        #результат проверки памяти
-        print(f"Оперативная память ({ram_type}): ", end="")
-        print("✅ ПОДХОДИТ" if ram_compatible else "❌ НЕ ПОДХОДИТ")
-        #результат проверки БП (если мощность больше 0)
-        if psu_power > 0:
-            print(f"Блок питания ({psu_power}Вт): {psu_verdict}")
+                // Показываем что ввели
+                let terminal = document.getElementById('terminal');
+                terminal.innerHTML += '<span style="color: #ff0;">❯❯ ' + input + '</span><br>';
+                terminal.scrollTop = terminal.scrollHeight;
+                
+                document.getElementById('user-input').value = '';
+            }
+        }
         
-        print("\n" + "-" * 60)
-        #общая оценка - все ли проверки пройдены
-        all_checks_passed = (cpu_socket == motherboard_socket and ram_compatible)
+        function resetProgram() {
+            location.reload();
+        }
         
-        if all_checks_passed:
-            print("🎉 ПОЗДРАВЛЯЮ! Все компоненты совместимы! Можно собирать компьютер!")
-        else:
-            print("⚠️ Обнаружены проблемы с совместимостью. Рекомендуется перепроверить компоненты.")
+        // Отправка по Enter
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendInput();
+            }
+        });
         
-        print("\n" + "-" * 60)
-        #спрашиваем, хочет ли пользователь проверить другую сборку
-        answer = input("Хотите проверить другую конфигурацию? (да/нет): ").strip().lower()
-        #если ответ не "да" и не его вариации - виходим из цикла
-        if answer not in ['да', 'yes', 'y', 'д', 'lf']:
-            continue_checking = False
-            print("\nСпасибо за использование Помощника сборщика ПК! Удачной сборки! 🚀")
-#это стандартная конструкция Python - проверяем, запущен ли файл напрямую
-if __name__ == "__main__":
-    #если да - вызываем главную функцию
-    main()
+        // Обновление шагов
+        function updateStep(step) {
+            document.getElementById('step1').classList.remove('active');
+            document.getElementById('step2').classList.remove('active');
+            document.getElementById('step3').classList.remove('active');
+            document.getElementById('step' + step).classList.add('active');
+            
+            // Меняем подсказки в зависимости от шага
+            let hints = document.getElementById('hints');
+            hints.innerHTML = '';
+            
+            if (step === 1 || step === 2) {
+                // Для сокетов
+                let sockets = ['AM4', 'AM5', 'LGA1700', 'LGA1200', 'LGA1151'];
+                sockets.forEach(s => {
+                    hints.innerHTML += `<span class="hint-tag" onclick="insertHint('${s}')">${s}</span>`;
+                });
+            } else if (step === 3) {
+                // Для памяти
+                let rams = ['DDR3', 'DDR4', 'DDR5'];
+                rams.forEach(r => {
+                    hints.innerHTML += `<span class="hint-tag" onclick="insertHint('${r}')">${r}</span>`;
+                });
+            }
+        }
+        
+        // Переменные для Python
+        window.pythonInput = '';
+        window.inputReady = false;
+    </script>
+
+    <!-- PyScript код (скрыт от пользователя) -->
+    <py-script config='{"packages":[]}'>
+        import sys
+        from js import document, window
+        import asyncio
+        
+        # Только вывод, без лишнего кода
+        class TerminalOutput:
+            def write(self, text):
+                if text.strip():  # Показываем только нужный текст
+                    terminal = document.getElementById('terminal')
+                    # Убираем лишние символы
+                    clean_text = text.replace('_pyodide.', '').strip()
+                    if clean_text:
+                        terminal.innerHTML += clean_text.replace('\n', '<br>')
+                        terminal.scrollTop = terminal.scrollHeight
+            def flush(self):
+                pass
+        
+        sys.stdout = TerminalOutput()
+        
+        # Функция ввода
+        async def get_input(prompt):
+            sys.stdout.write(prompt)
+            # Обновляем шаг
+            if 'сокет процессора' in prompt.lower():
+                js.updateStep(1)
+            elif 'сокет материнской' in prompt.lower():
+                js.updateStep(2)
+            else:
+                js.updateStep(3)
+            
+            # Ждем ввод
+            while not window.inputReady:
+                await asyncio.sleep(0.1)
+            window.inputReady = False
+            return window.pythonInput
+        
+        # ОСНОВНАЯ ПРОГРАММА (только нужные сообщения)
+        async def main():
+            await asyncio.sleep(0.5)
+            
+            print("⚡ ДОБРО ПОЖАЛОВАТЬ В ПОМОЩНИК СБОРЩИКА!\n")
+            
+            socket_info = {
+                'AM4': {'ram': ['DDR4']},
+                'AM5': {'ram': ['DDR5']},
+                'LGA1700': {'ram': ['DDR4', 'DDR5']},
+                'LGA1200': {'ram': ['DDR4']},
+                'LGA1151': {'ram': ['DDR4']},
+            }
+            
+            while True:
+                print("🔧 ШАГ 1: Введите сокет ПРОЦЕССОРА")
+                cpu = await get_input("")
+                cpu = cpu.strip().upper()
+                print(f"✓ Вы выбрали: {cpu}\n")
+                
+                print("🔧 ШАГ 2: Введите сокет МАТЕРИНСКОЙ ПЛАТЫ")
+                mb = await get_input("")
+                mb = mb.strip().upper()
+                print(f"✓ Вы выбрали: {mb}\n")
+                
+                # Проверка
+                if cpu == mb:
+                    print("✅ СОВМЕСТИМЫ! Процессор и плата подходят друг другу.\n")
+                    
+                    print("🧠 ШАГ 3: Введите тип ОПЕРАТИВНОЙ ПАМЯТИ")
+                    ram = await get_input("")
+                    ram = ram.strip().upper()
+                    
+                    if cpu in socket_info and ram in socket_info[cpu]['ram']:
+                        print(f"✅ Память {ram} подходит!\n")
+                        
+                        print("⚡ ШАГ 4: Введите мощность БЛОКА ПИТАНИЯ (Ватт)")
+                        try:
+                            psu = int((await get_input("")).strip())
+                            if psu >= 500:
+                                print("✅ Блок питания хороший\n")
+                            else:
+                                print("⚠️ Блок питания слабоват\n")
+                        except:
+                            print("⚠️ Ошибка ввода мощности\n")
+                        
+                        print("🎉 ВСЕ КОМПОНЕНТЫ СОВМЕСТИМЫ! Можно собирать компьютер!")
+                    else:
+                        print(f"❌ Память {ram} НЕ подходит для {cpu}!")
+                else:
+                    print(f"❌ НЕСОВМЕСТИМЫ! CPU: {cpu}, MB: {mb}")
+                
+                again = await get_input("\nПроверить еще? (да/нет): ")
+                if again.lower() not in ['да', 'yes', 'y', 'д']:
+                    print("\n🚀 Удачной сборки!")
+                    break
+                print("\n" + "="*40 + "\n")
+        
+        # Запуск
+        asyncio.ensure_future(main())
+    </py-script>
+</body>
+</html>
